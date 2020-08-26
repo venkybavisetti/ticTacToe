@@ -1,6 +1,6 @@
 import React from 'react';
-import TicTacToe from './ticTacToe';
+import Screen from './ticTacToe';
 
-const App = () => <TicTacToe />;
+const App = () => <Screen />;
 
 export default App;

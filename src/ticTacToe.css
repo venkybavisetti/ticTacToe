@@ -14,3 +14,18 @@
 .row {
   display: flex;
 }
+
+.options {
+  display: flex;
+  flex-direction: column;
+}
+
+.optionBtn {
+  width: 100px;
+  height: 20px;
+}
+
+.gameBoard {
+  width: fit-content;
+  margin: 10px auto;
+}
