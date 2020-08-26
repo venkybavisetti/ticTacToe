@@ -1,9 +1,10 @@
 import React from 'react';
 import './ticTacToe.css';
+import getWinningArray from './utilities';
 
 const Box = (props) => {
   return (
-    <button className="box" onClick={props.onClick}>
+    <button className="box" onClick={props.onClickListener}>
       {props.value}
     </button>
   );
@@ -14,7 +15,7 @@ class Table extends React.Component {
     return (
       <Box
         value={this.props.table[boxIndex]}
-        onClick={() => this.props.onClick(boxIndex)}
+        onClickListener={() => this.props.onClickListener(boxIndex)}
         key={boxIndex}
       />
     );
@@ -67,16 +68,7 @@ class TicTacToe extends React.Component {
   }
 
   getGameStatus(table) {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
+    const lines = getWinningArray(this.state.gridSize);
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
       let areInLine = lines[lineIndex].every(
         (box) => table[box] && table[box] === table[lines[lineIndex][0]]
@@ -105,7 +97,7 @@ class TicTacToe extends React.Component {
       <div>
         <Table
           table={this.state.table}
-          onClick={this.handleOnClick}
+          onClickListener={this.handleOnClick}
           gridSize={this.state.gridSize}
         />
         <br></br>
