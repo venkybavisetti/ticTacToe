@@ -39,18 +39,11 @@ class Table extends React.Component {
 
 const DisplayGameStatus = (props) => {
   if (!props.isGameOver) {
-    return (
-      <div>
-        It's <span style={{ color: 'red' }}>{props.playerTurn}</span> PlayerTurn
-      </div>
-    );
+    return <div>It's {props.playerTurn} PlayerTurn</div>;
   }
   return (
     <div>
-      <div>
-        player <span style={{ color: 'red' }}>{props.playerTurn}</span> won the
-        Game
-      </div>
+      <div>player {props.playerTurn} won the Game</div>
       <button
         style={{ cursor: 'pointer' }}
         onClick={() => window.location.reload()}
@@ -66,7 +59,7 @@ class TicTacToe extends React.Component {
     super(props);
     this.state = {
       table: [],
-      playerTurn: '🟢',
+      playerTurn: true,
       isGameOver: false,
       gridSize: 3,
     };
@@ -84,11 +77,11 @@ class TicTacToe extends React.Component {
       [0, 4, 8],
       [2, 4, 6],
     ];
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (table[a] && table[a] === table[b] && table[a] === table[c]) {
-        return true;
-      }
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+      let areInLine = lines[lineIndex].every(
+        (box) => table[box] && table[box] === table[lines[lineIndex][0]]
+      );
+      if (areInLine) return areInLine;
     }
     return false;
   }
@@ -97,11 +90,11 @@ class TicTacToe extends React.Component {
     this.setState((state) => {
       if (state.table[boxIndex] || state.isGameOver) return;
       const table = state.table.slice();
-      table[boxIndex] = state.playerTurn;
+      table[boxIndex] = state.playerTurn ? '🟢' : '🔴';
       const isGameOver = this.getGameStatus(table);
       return {
         table,
-        playerTurn: state.playerTurn === '🟢' ? '🔴' : '🟢',
+        playerTurn: isGameOver ? state.playerTurn : !state.playerTurn,
         isGameOver,
       };
     });
@@ -117,7 +110,7 @@ class TicTacToe extends React.Component {
         />
         <br></br>
         <DisplayGameStatus
-          playerTurn={this.state.playerTurn}
+          playerTurn={this.state.playerTurn ? '🟢' : '🔴'}
           isGameOver={this.state.isGameOver}
         />
       </div>
