@@ -61,6 +61,17 @@ class Table extends React.Component {
   }
 }
 
+const getGameStatus = (table, gridSize) => {
+  const lines = getWinningArray(gridSize);
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    let areInLine = lines[lineIndex].every(
+      (box) => table[box] && table[box] === table[lines[lineIndex][0]]
+    );
+    if (areInLine) return true;
+  }
+  return false;
+};
+
 class TicTacToe extends React.Component {
   constructor(props) {
     super(props);
@@ -72,23 +83,12 @@ class TicTacToe extends React.Component {
     this.handleOnClick = this.handleOnClick.bind(this);
   }
 
-  getGameStatus(table) {
-    const lines = getWinningArray(this.props.gridSize);
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      let areInLine = lines[lineIndex].every(
-        (box) => table[box] && table[box] === table[lines[lineIndex][0]]
-      );
-      if (areInLine) return areInLine;
-    }
-    return false;
-  }
-
   handleOnClick(boxIndex) {
     this.setState((state) => {
       if (state.table[boxIndex] || state.isGameOver) return;
       const table = state.table.slice();
       table[boxIndex] = state.playerTurn ? '🟢' : '🔴';
-      const isGameOver = this.getGameStatus(table);
+      const isGameOver = getGameStatus(table, this.props.gridSize);
       return {
         table,
         playerTurn: isGameOver ? state.playerTurn : !state.playerTurn,
@@ -169,10 +169,7 @@ class Screen extends React.Component {
       const gridSizes = { simple: 3, medium: 4, hard: 5 };
       return (
         <div className="gameBoard">
-          <h3>
-            Your Playing
-            <span style={{ color: '</span>' }}> {this.state.level}</span> Mode
-          </h3>
+          <h3> Your Playing {this.state.level} Mode </h3>
           <TicTacToe gridSize={gridSizes[this.state.level]} />
         </div>
       );
