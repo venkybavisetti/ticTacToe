@@ -1,67 +1,11 @@
 import React from 'react';
-import './ticTacToe.css';
 import getWinningArray from './utilities';
+import Tiles from './tiles';
+import DisplayGameStatus from './displayGameStatus';
+import './ticTacToe.css';
 
-const DisplayGameStatus = (props) => {
-  if (!props.isGameOver) {
-    return <div>It's {props.playerTurn} PlayerTurn</div>;
-  }
-  return (
-    <div>
-      <div>player {props.playerTurn} won the Game</div>
-      <button
-        style={{ cursor: 'pointer' }}
-        onClick={() => window.location.reload()}
-      >
-        Play Again
-      </button>
-    </div>
-  );
-};
-
-const Box = (props) => {
-  return (
-    <button className="box" onClick={props.onClickListener}>
-      {props.value}
-    </button>
-  );
-};
-
-class Table extends React.Component {
-  renderBox(boxIndex) {
-    return (
-      <Box
-        value={this.props.table[boxIndex]}
-        onClickListener={() => this.props.onClickListener(boxIndex)}
-        key={boxIndex}
-      />
-    );
-  }
-
-  renderRow(rowIndex) {
-    let row = [];
-    for (let colum = 0; colum < this.props.gridSize; colum++) {
-      row.push(this.renderBox(colum + rowIndex * this.props.gridSize));
-    }
-    return row;
-  }
-
-  render() {
-    let children = [];
-
-    for (let rowIndex = 0; rowIndex < this.props.gridSize; rowIndex++) {
-      const row = this.renderRow(rowIndex);
-      children.push(
-        <div className="row" key={rowIndex}>
-          {row}
-        </div>
-      );
-    }
-    return <div>{children}</div>;
-  }
-}
-
-const getGameStatus = (table, gridSize) => {
+const getGameStatus = (table) => {
+  const gridSize = Math.pow(table.length, 0.5);
   const lines = getWinningArray(gridSize);
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
     let areInLine = lines[lineIndex].every(
@@ -76,23 +20,28 @@ class TicTacToe extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      table: [],
-      playerTurn: true,
-      isGameOver: false,
+      table: new Array(Math.pow(this.props.gridSize, 2)).fill(''),
+      currentPlayer: '🟢',
+      nextPlayer: '🔴',
+      isDraw: false,
+      winner: null,
     };
     this.handleOnClick = this.handleOnClick.bind(this);
   }
 
   handleOnClick(boxIndex) {
-    this.setState((state) => {
-      if (state.table[boxIndex] || state.isGameOver) return;
-      const table = state.table.slice();
-      table[boxIndex] = state.playerTurn ? '🟢' : '🔴';
-      const isGameOver = getGameStatus(table, this.props.gridSize);
+    this.setState(({ table, currentPlayer, nextPlayer, isGameOver }) => {
+      if (table[boxIndex] || isGameOver) return;
+      const newTable = table.slice();
+      newTable[boxIndex] = currentPlayer;
+
       return {
-        table,
-        playerTurn: isGameOver ? state.playerTurn : !state.playerTurn,
-        isGameOver,
+        currentPlayer: nextPlayer,
+        nextPlayer: currentPlayer,
+        table: newTable,
+        isDraw: newTable.every((tile) => tile),
+        winner: getGameStatus(newTable) ? currentPlayer : null,
+        isGameOver: getGameStatus(newTable),
       };
     });
   }
@@ -100,15 +49,15 @@ class TicTacToe extends React.Component {
   render() {
     return (
       <div>
-        <Table
+        <Tiles
           table={this.state.table}
           onClickListener={this.handleOnClick}
           gridSize={this.props.gridSize}
         />
         <br></br>
         <DisplayGameStatus
-          playerTurn={this.state.playerTurn ? '🟢' : '🔴'}
-          isGameOver={this.state.isGameOver}
+          currentPlayer={this.state.currentPlayer}
+          gameStatus={{ winner: this.state.winner, isDraw: this.state.isDraw }}
         />
       </div>
     );
